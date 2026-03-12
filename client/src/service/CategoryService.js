@@ -1,26 +1,14 @@
-//import axios from "axios";
-//
-//export const addCategory = async (category) => {
-//   return await axios.delete(`http://localhost:8081/api/v1.0/categories/${categoryId}`);
-//   };
-//export const deleteCategoryById = async (categoryId) => {
-//    return await axios.delete('http://localhost:8081/api/v1.0/categories/${categoryId}');
-//};
-//
-//export const fetchCategories = async () => {
-//    return await axios.get('http://localhost:8081/api/v1.0/categories');
-//};
 
 import axios from "axios";
 
 export const addCategory = async (category) => {
-    return await axios.post('/api/v1.0/categories', category);  // 👈 post not delete
+    return await axios.post('/api/v1.0/categories', category, {headers:{'authorization':`Bearer ${localStorage.getItem('token')}`}});
 };
 
 export const deleteCategoryById = async (categoryId) => {
-    return await axios.delete(`/api/v1.0/categories/${categoryId}`);  // 👈 backticks!
+    return await axios.delete(`/api/v1.0/categories/${categoryId}`,{headers:{'authorization':`Bearer ${localStorage.getItem('token')}`}});
 };
 
 export const fetchCategories = async () => {
-    return await axios.get('/api/v1.0/categories');
+    return await axios.get('/api/v1.0/categories',{headers:{'authorization':`Bearer ${localStorage.getItem('token')}`}});
 };

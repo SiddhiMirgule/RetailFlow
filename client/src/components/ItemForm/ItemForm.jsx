@@ -1,47 +1,144 @@
+import { useContext, useState } from "react";
+import { AppContext } from "../../context/AppContext";
+import { assets } from "../../assets/assets";
+import { addItem } from "../../service/ItemService";
+import { toast } from "react-toastify";
+
 const ItemForm = () => {
+    const { categories, itemData, setItemData } = useContext(AppContext);
+    const [image, setImage] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [data, setData] = useState({
+        name: "",
+        categoryId: "",
+        price: "",
+        description: "",
+    });
+
+    const onChangeHandler = (e) => {
+        const value = e.target.value;
+        const name = e.target.name;
+        setData((data) => ({ ...data, [name]: value }));
+    };
+
+    const onSubmitHandler = async (e) => {
+        e.preventDefault();                                  // ✅ Added missing e.preventDefault()
+        if (!image) {
+            toast.error("Select image");
+            return;
+        }
+        setLoading(true);
+        const formData = new FormData();
+        formData.append("item", JSON.stringify(data));
+        formData.append("file", image);
+        try {
+            const response = await addItem(formData);
+            if (response.status === 201) {                   // ✅ Fixed: 201 for created
+                setItemData([...itemData, response.data]);   // ✅ Fixed: spread operator
+                toast.success("Item added successfully");
+                setData({
+                    name: "",
+                    categoryId: "",
+                    price: "",
+                    description: "",
+                });
+                setImage(false);
+            }
+        } catch (error) {
+            toast.error("Unable to add item");               // ✅ Fixed error message
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return (
-           <div
-             className="item-form-container"
-             style={{ height: '100vh', overflowY: 'auto', overflowX: 'hidden' }}
-           >
+        <div
+            className="item-form-container"
+            style={{ height: '100vh', overflowY: 'auto', overflowX: 'hidden' }}
+        >
             <div className="mx-2 mt-2">
                 <div className="card">
                     <div className="card-body">
-                        <form>
+                        <form onSubmit={onSubmitHandler}>
                             <div className="mb-3">
                                 <label htmlFor="image" className="form-label">
-                                <img src="https://placehold.co/48x48" alt="" width={48} />
+                                    <img
+                                        src={image ? URL.createObjectURL(image) : assets.upload}
+                                        alt=""
+                                        width={48}
+                                    />
                                 </label>
-                                <input type="file" name="image" id="image" className="form-control" hidden />
+                                <input
+                                    type="file"
+                                    name="image"
+                                    id="image"
+                                    className="form-control"
+                                    hidden
+                                    onChange={(e) => setImage(e.target.files[0])}
+                                />
                             </div>
-                        <div className="mb-3">
-                            <label htmlFor="name" className="form-label">Name</label>
-                            <input type="text" name="name" id="name" className="form-control" placeholder="Item Name" />
-                        </div>
-                        <div className="mb-3">
-                            <label className="form-label" htmlFor="category">Category</label>
-                            <select name="category" id="category" className="form-control">
-                                <option value="">--- SELECT CATEGORY ---</option>
-                                <option value="category1">--- CATEGORY 1 ---</option>
-                                <option value="category2">--- CATEGORY 2 ---</option>
-                            </select>
-                        </div>
-                        <div className="mb-3">
-                            <label htmlFor="price" className="form-label">Price</label>
-                            <input type="number" name="price" id="price" className="form-control" placeholder="&#8377;200.00"/>
+                            <div className="mb-3">
+                                <label htmlFor="name" className="form-label">Name</label>
+                                <input
+                                    type="text"
+                                    name="name"
+                                    id="name"
+                                    className="form-control"
+                                    placeholder="Item Name"
+                                    onChange={onChangeHandler}
+                                    value={data.name}
+                                />
                             </div>
-                        <div className="mb-3">
-                            <label htmlFor="description" className="form-label">Description</label>
-                            <textarea rows="5" name="description" id="description" className="form-control" placeholder="Write content here" />
-                        </div>
-
-                        <button type="submit" className="btn w-100" style={{backgroundColor: '#f0a500', fontWeight: 'bold'}}>Save</button>
-                    </form>
+                            <div className="mb-3">
+                                <label className="form-label" htmlFor="categoryId">Category</label>
+                                <select
+                                    name="categoryId"                    // ✅ Fixed: categoryId to match backend
+                                    id="categoryId"
+                                    className="form-control"
+                                    onChange={onChangeHandler}
+                                    value={data.categoryId}>
+                                    <option value="">--- SELECT CATEGORY ---</option>
+                                    {categories.map((category, index) => (
+                                        <option key={index} value={category.categoryId}>{category.name}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div className="mb-3">
+                                <label htmlFor="price" className="form-label">Price</label>
+                                <input
+                                    type="number"
+                                    name="price"
+                                    id="price"
+                                    className="form-control"
+                                    placeholder="&#8377;200.00"
+                                    onChange={onChangeHandler}
+                                    value={data.price}
+                                />
+                            </div>
+                            <div className="mb-3">
+                                <label htmlFor="description" className="form-label">Description</label>
+                                <textarea
+                                    rows="5"
+                                    name="description"
+                                    id="description"
+                                    className="form-control"
+                                    placeholder="Write content here"
+                                    onChange={onChangeHandler}
+                                    value={data.description}
+                                />
+                            </div>
+                            <button
+                                type="submit"
+                                className="btn w-100"
+                                style={{ backgroundColor: '#f0a500', fontWeight: 'bold' }}>
+                                {loading ? "Loading..." : "Save"}
+                            </button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-    )
-}
+    );
+};
 
 export default ItemForm;

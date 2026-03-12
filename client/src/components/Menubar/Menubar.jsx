@@ -1,14 +1,30 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useContext } from 'react';
+import { AppContext } from '../../context/AppContext';
 import { assets } from '../../assets/assets';
 import './Menubar.css';
 
 const Menubar = () => {
+    const navigate = useNavigate();
+    const { setAuthData } = useContext(AppContext);
+
+    const logout = () => {
+        localStorage.removeItem("token");
+        localStorage.removeItem("role");
+        setAuthData(null, null);
+        navigate("/login");
+    };
+
     return (
         <nav className="navbar navbar-expand-lg navbar-dark bg-dark px-2">
-            <Link className="navbar-brand" to="/">
+            <a className="navbar-brand" href="#">
                 <img src={assets.logo} alt="Logo" height="40" />
-            </Link>
-            <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            </a>
+            <button
+                className="navbar-toggler"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#navbarNav">
                 <span className="navbar-toggler-icon"></span>
             </button>
             <div className="collapse navbar-collapse p-2" id="navbarNav">
@@ -29,9 +45,40 @@ const Menubar = () => {
                         <Link className="nav-link" to="/users">Manage Users</Link>
                     </li>
                 </ul>
+                <ul className="navbar-nav ms-auto ms-md-0 me-3 me-lg-4">
+                    <li className="nav-item dropdown">
+
+                            className="nav-link dropdown-toggle"
+                            role="button"
+                            data-bs-toggle="dropdown"
+                            aria-expanded="false">
+                            <i className="bi bi-person-circle"></i>
+                        </a>
+                        <ul className="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownUser">
+                            <li>
+                                <a href="#!" className="dropdown-item">
+                                    Settings
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#!" className="dropdown-item">
+                                    Activity log
+                                </a>
+                            </li>
+                            <li>
+                                <hr className="dropdown-divider" />
+                            </li>
+                            <li>
+                                <a href="#!" className="dropdown-item" onClick={logout}> {/* ✅ Updated to logout */}
+                                    Logout
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
             </div>
         </nav>
     );
-}
+};
 
 export default Menubar;

@@ -9,7 +9,10 @@ import ManageItems from './pages/ManageItems/ManageItems'
 import Explore from './pages/Explore/Explore'
 
 const App = () => {
-    return (
+    const location =useLocation();
+    return(
+        <div>
+            {llocation.pathname !== "/login" && <Menubar/>}
         <BrowserRouter>
             <Menubar />
             <ToastContainer position="top-right" autoClose={3000} />  {/* 👈 fixed */}
@@ -20,6 +23,8 @@ const App = () => {
                 <Route path="/users" element={<ManageUsers />} />
                 <Route path="/items" element={<ManageItems />} />
                 <Route path="/explore" element={<Explore />} />
+                <Route path="/login" element={<Login />} />
+
             </Routes>
         </BrowserRouter>
     );
